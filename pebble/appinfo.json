@@ -1,0 +1,18 @@
+{
+  "uuid": "837293c3-3fca-45ee-ba27-756ba7b5b70b",
+  "shortName": "cairn",
+  "longName": "cairn",
+  "companyName": "Tack Mobile",
+  "versionLabel": "0.1",
+  "sdkVersion": "3",
+  "targetPlatforms": ["basalt"],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+    "dummy": 0
+  },
+  "resources": {
+    "media": []
+  }
+}
