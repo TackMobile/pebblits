@@ -1,8 +1,5 @@
 #include <pebble.h>
 
-static Window *s_main_window;
-static TextLayer *s_output_layer;
-
 static const SmartstrapServiceId SERVICE_ID = 0x1001;
 static const SmartstrapAttributeId CENTER_INPUT_ATTRIBUTE_ID = 0x0001;
 static const SmartstrapAttributeId CENTER_OUTPUT_ATTRIBUTE_ID = 0x0002;
@@ -13,8 +10,15 @@ static const size_t CENTER_OUTPUT_ATTRIBUTE_LENGTH = 1;
 static SmartstrapAttribute *center_input_attribute;
 static SmartstrapAttribute *center_output_attribute;
 
+static long s_last_time = 0;
+static int16_t s_accel_x;
+static int16_t s_accel_y;
+static int16_t s_accel_z;
 static int s_button_presses;
 static bool s_service_available;
+
+static Window *s_main_window;
+static TextLayer *s_output_layer;
 
 /******************************** Smartstraps *********************************/
 
@@ -54,7 +58,7 @@ static void strap_did_read(SmartstrapAttribute *attr, SmartstrapResult result,
 
 /********************************** Output ************************************/
 
-static void prv_set_center_attribute(bool on) {
+static void prv_set_center_attribute(uint8_t value) {
   SmartstrapResult result;
   uint8_t *buffer;
   size_t length;
@@ -64,7 +68,7 @@ static void prv_set_center_attribute(bool on) {
     return;
   }
 
-  buffer[0] = on;
+  buffer[0] = value;
 
   result = smartstrap_attribute_end_write(center_output_attribute, 1, false);
   if (result != SmartstrapResultOk) {
@@ -73,14 +77,33 @@ static void prv_set_center_attribute(bool on) {
   }
 }
 
+/******************************* Accel Handling *******************************/
+static void data_handler(AccelData *data, uint32_t num_samples) {
+  if (!data[0].did_vibrate) {
+    s_accel_y = (255 * (abs(data[0].y) / 1000.0));
+    prv_set_center_attribute(s_accel_y);
+
+    // s_accel_x = data[0].x;
+    // s_accel_y = data[0].y;
+    // s_accel_z = data[0].z;
+
+    // Long lived buffer
+    static char s_buffer[128];
+    snprintf(s_buffer, sizeof(s_buffer), "Y %d", s_accel_y);
+    text_layer_set_text(s_output_layer, s_buffer);
+  }
+}
+
 /****************************** Button Handling *******************************/
 
 static void up_click_handler(ClickRecognizerRef recognizer, void *context) {
-  prv_set_center_attribute(true);
+  //prv_set_center_attribute(true);
+  accel_data_service_subscribe(1, data_handler);
 }
 
 static void down_click_handler(ClickRecognizerRef recognizer, void *context) {
-  prv_set_center_attribute(false);
+  //prv_set_center_attribute(false);
+  accel_data_service_unsubscribe();
 }
 
 static void click_config_provider(void *context) {
@@ -92,6 +115,13 @@ static void click_config_provider(void *context) {
 
 static void main_window_load(Window *window) {
   Layer *window_layer = window_get_root_layer(window);
+
+  // text layer for connection status
+  GRect bounds = layer_get_bounds(window_layer);
+  s_output_layer = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
+  text_layer_set_font(s_output_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
+  text_layer_set_text_alignment(s_output_layer, GTextAlignmentCenter);
+  layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_output_layer));
 }
 
 static void main_window_unload(Window *window) {
@@ -121,7 +151,6 @@ static void init() {
 }
 
 static void deinit() {
-  window_destroy(s_main_window);
   smartstrap_attribute_destroy(center_input_attribute);
   smartstrap_attribute_destroy(center_output_attribute);
 }

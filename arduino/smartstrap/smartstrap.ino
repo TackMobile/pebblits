@@ -32,7 +32,7 @@ void handle_center_input_request(RequestType type, size_t length) {
     // unexpected request type
     return;
   }
-  
+
   int inputValue = analogRead(CENTER_INPUT_PIN);
   const uint8_t mapInputValue = map(inputValue, 0, 1023, 0, 255);
   ArduinoPebbleSerial::write(true, (uint8_t *)&mapInputValue, sizeof(mapInputValue));
@@ -46,9 +46,9 @@ void handle_center_output_request(RequestType type, size_t length) {
     // unexpected request length
     return;
   }
-  
+
   // set the LED
-  digitalWrite(CENTER_OUTPUT_PIN, (bool) buffer[0]);
+  analogWrite(CENTER_OUTPUT_PIN, buffer[0]);
   // ACK that the write request was received
   ArduinoPebbleSerial::write(true, NULL, 0);
 }
