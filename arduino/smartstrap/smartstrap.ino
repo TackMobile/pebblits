@@ -42,7 +42,7 @@ void setup() {
   //setup light for "connected" indicator.
   pinMode(CONNECTED_OUTPUT_PIN, OUTPUT);
   // initially off for "not connected".
-  //digitalWrite(CONNECTED_OUTPUT_PIN, LOW);
+  digitalWrite(CONNECTED_OUTPUT_PIN, LOW);
 
   // setup output for the LittleBits outputs
   pinMode(TOP_OUTPUT_PIN, OUTPUT);
@@ -122,6 +122,13 @@ void handle_output_request(RequestType type, size_t length, uint16_t attribute_i
 }
 
 void loop() {
+    
+  uint16_t service_id;
+  uint16_t attribute_id;
+  size_t length;
+  RequestType type;
+  bool fed = ArduinoPebbleSerial::feed(&service_id, &attribute_id, &length, &type);
+
   bool pebble_connected = ArduinoPebbleSerial::is_connected();
   digitalWrite(CONNECTED_OUTPUT_PIN, pebble_connected ? HIGH : LOW);
 
@@ -187,11 +194,7 @@ void loop() {
       bottom_notified_time = current_time;
     }
     
-    uint16_t service_id;
-    uint16_t attribute_id;
-    size_t length;
-    RequestType type;
-    if(ArduinoPebbleSerial::feed(&service_id, &attribute_id, &length, &type)) {
+    if (fed) {
       // process the request
       if (service_id == SERVICE_ID) {
         switch (type) {
