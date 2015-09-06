@@ -82,7 +82,7 @@ void handle_input_request(RequestType type, size_t length, uint16_t attribute_id
     default:
       break; 
   }
-  const uint8_t mapInputValue = map(inputValue, 0, 1023, 0, 255);
+  const uint8_t mapInputValue = inputValue;
   ArduinoPebbleSerial::write(true, (uint8_t *)&mapInputValue, sizeof(mapInputValue));
 }
 
@@ -145,11 +145,11 @@ void loop() {
     should_notify_top = HIGH;
   }
 
-  if (center_new_value != last_center_value_notified) {
+  if (abs(last_center_value_notified - center_new_value) > 2) {
     should_notify_center = HIGH;
   }
 
-  if (bottom_new_value != last_bottom_value_notified) {
+  if (abs(last_bottom_value_notified - bottom_new_value) > 2) {
     should_notify_bottom = HIGH;
   }
 
