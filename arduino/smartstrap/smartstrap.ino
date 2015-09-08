@@ -39,6 +39,9 @@ static const uint8_t PEBBLE_DATA_PIN = 10;
 static uint8_t buffer[GET_PAYLOAD_BUFFER_SIZE(4)];
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("Hello from Arduino at heart");
+  
   //setup light for "connected" indicator.
   pinMode(CONNECTED_OUTPUT_PIN, OUTPUT);
   // initially off for "not connected".
@@ -63,6 +66,7 @@ void setup() {
 }
 
 void handle_input_request(RequestType type, size_t length, uint16_t attribute_id) {
+  Serial.println("Arduino -> SmartStrap (START)");
   if (type != RequestTypeRead) {
     // unexpected request type
     return;
@@ -84,9 +88,12 @@ void handle_input_request(RequestType type, size_t length, uint16_t attribute_id
   }
   const uint8_t mapInputValue = inputValue;
   ArduinoPebbleSerial::write(true, (uint8_t *)&mapInputValue, sizeof(mapInputValue));
+  Serial.println("Arduino -> SmartStrap (SUCCESS)");
 }
 
 void handle_output_request(RequestType type, size_t length, uint16_t attribute_id) {
+  Serial.println("SmartStrap -> Arduino (START)");
+  
   if (type != RequestTypeWrite) {
     // unexpected request type
     return;
@@ -119,6 +126,8 @@ void handle_output_request(RequestType type, size_t length, uint16_t attribute_i
   } else {
     ArduinoPebbleSerial::write(false, NULL, 0);
   }
+
+  Serial.println("SmartStrap -> Arduino (SUCCESS)");
 }
 
 void loop() {

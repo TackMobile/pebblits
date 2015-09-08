@@ -13,6 +13,42 @@
     "dummy": 0
   },
   "resources": {
-    "media": []
-  }
+      "media": [
+        {
+          "type": "png",
+          "name": "TICK_BLACK",
+          "file": "images/tick_black.png"
+        },
+        {
+          "type": "png",
+          "name": "TICK_WHITE",
+          "file": "images/tick_white.png"
+        },
+        {
+          "type": "png",
+          "name": "CONFIRM",
+          "file": "images/confirm.png"
+        },
+        {
+          "type": "png",
+          "name": "CROSS",
+          "file": "images/cross.png"
+        },
+        {
+          "type": "png",
+          "name": "TICK",
+          "file": "images/tick.png"
+        },
+        {
+          "type": "png",
+          "name": "WARNING",
+          "file": "images/warning.png"
+        },
+        {
+          "type": "png",
+          "name": "CONFIG_REQUIRED",
+          "file": "images/config-required.png"
+        }
+      ]
+    }
 }
